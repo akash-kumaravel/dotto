@@ -1,0 +1,8 @@
+{
+  "name": "Remix Tee Studio - 3D Apparel Customizer",
+  "description": "Interactive 3D t-shirt design studio with real-time cloth simulation, procedural inflation, custom graphic and text placement, physics wind effects, and mockup export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

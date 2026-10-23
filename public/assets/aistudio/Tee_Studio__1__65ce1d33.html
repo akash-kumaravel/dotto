@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tee Studio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👕</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#d8d8db;--ink:#17151f;--glass:rgba(255,255,255,.55);--line:rgba(0,0,0,.1);--a:#ff4fd8;--b:#4fd8ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% 38%,#efeff1 0%,#d8d8db 55%,#bdbdc3 100%);color:var(--ink);font-family:Syne,system-ui,sans-serif;overflow:hidden;touch-action:none;user-select:none}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.16;animation:drift 18s ease-in-out infinite alternate}
+.b1{width:48vmax;height:48vmax;background:#6a2cff;left:-12vmax;top:-14vmax}
+.b2{width:40vmax;height:40vmax;background:#ff2d9c;right:-10vmax;bottom:-12vmax;animation-delay:-6s}
+.b3{width:26vmax;height:26vmax;background:#12c6ff;left:38%;top:30%;opacity:.28;animation-delay:-11s}
+@keyframes drift{to{transform:translate(6vmax,4vmax) scale(1.15)}}
+#floor{position:fixed;left:50%;bottom:14vh;width:min(70vw,560px);height:46px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.4),transparent);filter:blur(8px)}
+#gl{position:fixed;inset:0;width:100%;height:100%;cursor:grab}
+#gl:active{cursor:grabbing}
+.brand{position:fixed;left:22px;top:calc(18px + env(safe-area-inset-top,0px));font-weight:800;font-size:20px;letter-spacing:.02em;pointer-events:none}
+.brand i{font-style:normal;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+#drop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(235,235,240,.8);backdrop-filter:blur(8px);font-size:34px;font-weight:800;z-index:5;border:3px dashed var(--a);margin:16px;border-radius:28px;inset:0}
+#drop.on{display:flex}
+.dock{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:center;padding:12px 16px;background:var(--glass);border:1px solid var(--line);border-radius:26px;backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);width:max-content;max-width:calc(100vw - 24px);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+button,label.up{font:inherit;color:var(--ink);cursor:pointer}label.up{color:#fff}
+.up,.gust{display:flex;align-items:center;gap:8px;padding:11px 18px;border-radius:18px;border:0;font-weight:800;font-size:15px}
+.up{background:linear-gradient(110deg,var(--a),#8a4fff 60%,var(--b));box-shadow:0 8px 24px rgba(255,79,216,.4)}
+.gust{background:var(--glass);border:1px solid var(--line)}
+.up:hover,.gust:hover{filter:brightness(1.15)}
+.sw{display:flex;gap:9px}
+.sw button{width:26px;height:26px;border-radius:50%;border:2px solid transparent;outline:1px solid var(--line);padding:0}
+.sw button.on{border-color:#fff;transform:scale(1.18)}
+.rg{display:flex;align-items:center;gap:8px}
+.rg svg{width:18px;height:18px;opacity:.8}
+input[type=range]{width:90px;accent-color:var(--a)}
+button:focus-visible,label.up:focus-within,input:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+@media(max-width:560px){input[type=range]{width:70px}.brand{font-size:17px}}
+@media(prefers-reduced-motion:reduce){.blob{animation:none}}
+</style></head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div id="floor"></div>
+<canvas id="gl"></canvas>
+<div class="brand">tee<i>studio</i></div>
+<div id="drop">Drop your design</div>
+<div class="dock">
+  <label class="up" tabindex="0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg>Upload<input id="file" type="file" accept="image/*" hidden></label>
+  <div class="rg" title="Size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><rect x="8" y="8" width="8" height="8" rx="1.5"/></svg><input id="sz" type="range" min="30" max="220" value="100" aria-label="Size"></div>
+  <div class="rg" title="Rotate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg><input id="rt" type="range" min="-180" max="180" value="0" aria-label="Rotate"></div>
+  <div class="sw" id="sw"></div>
+  <button class="gust" id="gust"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8"/></svg>Wind</button>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const S=1024,N=96,SIZE=3.4,DEPTH=.52;
+const $=id=>document.getElementById(id);
+let color='#f4f4f6',design={img:null,x:512,y:430,w:380,h:380,rot:0,sc:1},dirty=true;
+const k=S/1000;
+function neck(c,b){const P=(x,y)=>[x*k,y*k];b?c.bezierCurveTo(...P(595,140),...P(405,140),...P(400,95)):c.bezierCurveTo(...P(612,240),...P(388,240),...P(400,95))}
+function path(c,b){const P=(x,y)=>[x*k,y*k];c.beginPath();c.moveTo(...P(400,95));c.lineTo(...P(235,165));c.lineTo(...P(105,395));c.lineTo(...P(190,440));c.lineTo(...P(258,380));c.quadraticCurveTo(...P(250,640),...P(262,905));c.quadraticCurveTo(...P(500,935),...P(738,905));c.quadraticCurveTo(...P(750,640),...P(742,380));c.lineTo(...P(810,440));c.lineTo(...P(895,395));c.lineTo(...P(765,165));c.lineTo(...P(600,95));neck(c,b);c.closePath();}
+// default artwork
+const art=document.createElement('canvas');art.width=art.height=600;
+(function(){const c=art.getContext('2d');let g=c.createLinearGradient(0,60,0,540);g.addColorStop(0,'#ffe14f');g.addColorStop(.5,'#ff4f8b');g.addColorStop(1,'#7a3dff');
+c.fillStyle=g;c.beginPath();c.arc(300,300,210,0,7);c.fill();c.globalCompositeOperation='destination-out';for(let i=0;i<7;i++){c.fillRect(80,310+i*34,440,5+i*3.4)}
+c.globalCompositeOperation='source-over';c.strokeStyle='#4fd8ff';c.lineWidth=10;c.beginPath();c.arc(300,300,252,0,7);c.stroke();c.lineWidth=3;c.beginPath();c.arc(300,300,275,0,7);c.stroke();})();
+design.img=art;
+const weave=(()=>{const p=document.createElement('canvas');p.width=p.height=4;const c=p.getContext('2d');c.fillStyle='rgba(255,255,255,.07)';c.fillRect(0,0,2,2);c.fillRect(2,2,2,2);c.fillStyle='rgba(0,0,0,.12)';c.fillRect(2,0,2,2);c.fillRect(0,2,2,2);return p})();
+function paint(cv,back){const c=cv.getContext('2d');c.clearRect(0,0,S,S);c.save();path(c,back);c.clip();
+c.fillStyle=color;c.fillRect(0,0,S,S);
+if(!back&&design.img){c.save();c.translate(design.x,design.y);c.rotate(design.rot);c.globalAlpha=.96;c.drawImage(design.img,-design.w*design.sc/2,-design.h*design.sc/2,design.w*design.sc,design.h*design.sc);c.restore()}
+c.fillStyle=c.createPattern(weave,'repeat');c.fillRect(0,0,S,S);
+let g=c.createLinearGradient(0,0,0,S);g.addColorStop(0,'rgba(255,255,255,.1)');g.addColorStop(.6,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.28)');c.fillStyle=g;c.fillRect(0,0,S,S);
+c.beginPath();c.moveTo(600*k,95*k);neck(c,back);c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=44*k;c.stroke();c.strokeStyle='rgba(255,255,255,.35)';c.lineWidth=40*k;c.setLineDash([1.5,3.5]);c.stroke();c.setLineDash([]);c.strokeStyle='rgba(0,0,0,.28)';c.lineWidth=2.5;c.stroke();
+c.strokeStyle='rgba(255,255,255,.12)';c.lineWidth=2;c.setLineDash([9,7]);c.stroke();
+c.beginPath();c.moveTo(262*k,872*k);c.quadraticCurveTo(500*k,902*k,738*k,872*k);c.moveTo(114*k,368*k);c.lineTo(199*k,413*k);c.moveTo(886*k,368*k);c.lineTo(801*k,413*k);c.moveTo(235*k,165*k);c.quadraticCurveTo(262*k,280*k,258*k,380*k);c.moveTo(765*k,165*k);c.quadraticCurveTo(738*k,280*k,742*k,380*k);c.stroke();
+if(back){c.setLineDash([]);c.fillStyle='rgba(255,255,255,.18)';c.fillRect(470*k,175*k,60*k,34*k)}
+c.restore()}
+// renderer
+const cv=$('gl'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1;
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(32,1,.1,50);
+scene.add(new THREE.HemisphereLight(0xffffff,0x9a9aa6,1.1));
+const key=new THREE.DirectionalLight(0xffffff,1.25);key.position.set(2.5,3.5,4.5);scene.add(key);
+const m1=new THREE.PointLight(0xffd8f0,.7,14);m1.position.set(-4,1,-1.5);scene.add(m1);
+const c1=new THREE.PointLight(0xd8f0ff,.7,14);c1.position.set(4,-1,-1.5);scene.add(c1);
+const cvF=document.createElement('canvas'),cvB=document.createElement('canvas');cvF.width=cvF.height=cvB.width=cvB.height=S;
+const tF=new THREE.CanvasTexture(cvF),tB=new THREE.CanvasTexture(cvB);[tF,tB].forEach(t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=8});
+// inflate field from distance transform
+const M=128,mc=document.createElement('canvas');mc.width=mc.height=M;const mx=mc.getContext('2d');mx.scale(M/S,M/S);path(mx,true);mx.fillStyle='#fff';mx.fill();
+const id=mx.getImageData(0,0,M,M).data,d=new Float32Array(M*M);for(let i=0;i<M*M;i++)d[i]=id[i*4+3]>127?1e4:0;
+const at=(x,y)=>x<0||y<0||x>=M||y>=M?0:d[y*M+x];
+for(let y=0;y<M;y++)for(let x=0;x<M;x++){const i=y*M+x;d[i]=Math.min(d[i],at(x-1,y)+1,at(x,y-1)+1,at(x-1,y-1)+1.4,at(x+1,y-1)+1.4)}
+for(let y=M-1;y>=0;y--)for(let x=M-1;x>=0;x--){const i=y*M+x;d[i]=Math.min(d[i],at(x+1,y)+1,at(x,y+1)+1,at(x+1,y+1)+1.4,at(x-1,y+1)+1.4)}
+let f=new Float32Array(M*M);for(let i=0;i<M*M;i++){const r=Math.min(d[i],30);f[i]=Math.sqrt(900-(30-r)*(30-r))/30*(.35+.65*Math.min(r/20,1))}
+for(let p=0;p<3;p++){const g=new Float32Array(M*M);for(let y=1;y<M-1;y++)for(let x=1;x<M-1;x++){let s=0;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)s+=f[(y+a)*M+x+b];g[y*M+x]=s/9}f=g}
+function panel(tex,sign){const g=new THREE.PlaneGeometry(SIZE,SIZE,N,N);const n=g.attributes.position.count,uv=g.attributes.uv,base=new Float32Array(n*2),inf=new Float32Array(n);
+for(let i=0;i<n;i++){base[i*2]=g.attributes.position.getX(i);base[i*2+1]=g.attributes.position.getY(i);inf[i]=f[Math.min(M-1,(1-uv.getY(i))*M|0)*M+Math.min(M-1,uv.getX(i)*M|0)]}
+const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:tex,alphaTest:.5,side:THREE.DoubleSide,roughness:.92,metalness:0}));
+m.userData={base,inf,sign};g.boundingSphere=new THREE.Sphere(new THREE.Vector3(),3);return m}
+const front=panel(tF,1),back=panel(tB,-1),tee=new THREE.Group();tee.add(front,back);tee.position.y=.05;scene.add(tee);
+function repaint(){paint(cvF,false);paint(cvB,true);tF.needsUpdate=tB.needsUpdate=true;dirty=false}
+// UI
+['#f4f4f6','#15151b','#e8334a','#2f6bff','#1fc98a'].forEach((c,i)=>{const b=document.createElement('button');b.style.background=c;b.setAttribute('aria-label','Shirt color '+c);if(!i)b.className='on';b.onclick=()=>{color=c;[...$('sw').children].forEach(x=>x.classList.toggle('on',x===b));dirty=true};$('sw').appendChild(b)});
+$('sz').oninput=e=>{design.sc=e.target.value/100;dirty=true};
+$('rt').oninput=e=>{design.rot=e.target.value*Math.PI/180;dirty=true};
+function load(file){if(!file||!file.type.startsWith('image/'))return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=400/Math.max(im.width,im.height);design.img=im;design.w=im.width*s;design.h=im.height*s;design.x=512;design.y=440;design.sc=1;design.rot=0;$('sz').value=100;$('rt').value=0;dirty=true};im.src=r.result};r.readAsDataURL(file)}
+$('file').onchange=e=>load(e.target.files[0]);
+addEventListener('dragover',e=>{e.preventDefault();$('drop').classList.add('on')});
+addEventListener('dragleave',e=>{if(!e.relatedTarget)$('drop').classList.remove('on')});
+addEventListener('drop',e=>{e.preventDefault();$('drop').classList.remove('on');load(e.dataTransfer.files[0])});
+let wind=0;$('gust').onclick=()=>wind=3;
+// interaction
+const ray=new THREE.Raycaster(),mv=new THREE.Vector2();let mode=null,ry=-.35,vy=0,lx=0,off=[0,0];
+function hit(e){const r=cv.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(mv,cam);const h=ray.intersectObject(front)[0];return h&&Math.cos(ry)>.45?h.uv:null}
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);lx=e.clientX;const u=hit(e);mode='rot';if(u){const px=u.x*S,py=(1-u.y)*S;if(Math.hypot(px-design.x,py-design.y)<design.w*design.sc*.55){mode='move';off=[design.x-px,design.y-py]}}});
+cv.addEventListener('pointermove',e=>{wind=Math.max(wind,Math.min(1.6,Math.abs(e.movementX||0)/14));if(mode==='move'){const u=hit(e);if(u){design.x=u.x*S+off[0];design.y=(1-u.y)*S+off[1];dirty=true}}else if(mode==='rot'){vy=(e.clientX-lx)*.012;ry+=vy;lx=e.clientX}});
+const up=()=>mode=null;cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault();design.sc=Math.max(.3,Math.min(2.2,design.sc*(e.deltaY<0?1.06:.94)));$('sz').value=design.sc*100;dirty=true},{passive:false});
+function fit(){const w=innerWidth,h=innerHeight;R.setSize(w,h);cam.aspect=w/h;cam.position.set(0,.1,w/h<.8?13:9.4);cam.updateProjectionMatrix();tee.position.y=w/h<.8?.5:.2}
+addEventListener('resize',fit);fit();
+// animate
+const clock=new THREE.Clock();
+function frame(){const t=clock.getElapsedTime();if(dirty)repaint();
+if(mode!=='rot'){ry+=vy;vy*=.94;if(Math.abs(vy)<.0008)ry+=Math.sin(t*.5)*.0015}
+tee.rotation.y=ry;tee.rotation.z=Math.sin(t*.7)*.025;wind*=.985;
+const A=1+wind;
+[front,back].forEach(m=>{const p=m.geometry.attributes.position,{base,inf,sign}=m.userData;
+for(let i=0;i<p.count;i++){const x=base[i*2],y=base[i*2+1];let w=Math.max(0,Math.min(1,(1.35-y)/2.7));w=Math.pow(w,1.3)+Math.max(0,Math.min(.5,(Math.abs(x)-.9)*.6))*(y<1.2?1:0);
+const wv=(Math.sin(x*2.6+y*1.2-t*2)*.07+Math.sin(x*6.3-y*2.1+t*3.1)*.018+Math.sin(y*3.1+x*1.5-t*1.6)*.03)*w*A+(Math.sin(x*9+y*2.2)*.012+Math.sin(x*5-y*3)*.01)*w;
+p.setXYZ(i,x+wv*.12*A*w,y-Math.abs(wv)*.05,sign*inf[i]*DEPTH+wv)}
+p.needsUpdate=true;m.geometry.computeVertexNormals()});
+R.render(scene,cam);requestAnimationFrame(frame)}
+frame();
+</script>
+</body></html>
